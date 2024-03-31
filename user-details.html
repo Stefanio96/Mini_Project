@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>USer Details</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            background: black;
+            font-family: "Book Antiqua";
+            font-size: 16px;
+            background-color: #353550;
+            background: radial-gradient(50% 50% at 50% 50%, #353550 0%, rgba(25, 25, 27, 100.00) 100%);
+
+        }
+
+        #userDetails {
+            display: flex;
+            justify-content: center;
+
+            border-radius: 10px;
+            border: solid rgba(126, 26, 26, 0.58);
+            max-width: 40%;
+
+
+            margin: 15px;
+            height: fit-content;
+
+            ul {
+
+                color: #c9c5c5;
+                margin: 0;
+            }
+
+            li {
+                padding-right: 20px;
+                list-style: none;
+            }
+
+        }
+
+        .postButton {
+            z-index: 1;
+            margin: 30px;
+            width: 90%;
+            background-color: #c93232;
+            color: #c9c5c5;
+            padding: 15px 0;
+            border: 5px #a84444 solid;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        #postContainer {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            padding: 20px;
+            z-index: 100;
+        }
+
+        .postBlock {
+
+            flex-basis: 18%;
+            margin-bottom: 20px;
+            border: solid rgba(126, 26, 26, 0.58);
+            padding: 10px;
+            border-radius: 5px;
+
+
+        }
+
+        .postBlock a {
+            color: #c9c5c5;
+            text-decoration: none;
+            display: flex;
+            justify-content: center;
+            text-align: center;
+
+        }
+
+        .postBlock a:hover {
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+
+
+<div id="userDetails"></div>
+
+
+<script>
+    const userID = new URL(location.href).searchParams.get('id')
+
+    async function load() {
+        await fetch(`http://jsonplaceholder.typicode.com/users/${userID}`)
+            .then(res => res.json())
+            .then(user => {
+                console.log(user)
+
+                let userDetailsDiv = document.getElementById('userDetails')
+
+                function userDetails(user, userDetailsDiv) {
+                    const ul = document.createElement('ul')
+                    userDetailsDiv.appendChild(ul)
+
+                    for (const key in user) {
+                        const li = document.createElement('li')
+                        ul.appendChild(li)
+
+                        if (typeof user[key] === 'object' && user[key] !== null) {
+                            li.textContent = key + ':'
+                            userDetails(user[key], li)
+                        } else {
+                            let p = document.createElement('p')
+                            li.appendChild(p)
+                            p.textContent = `${key}: ${user[key]}`
+                        }
+                    }
+                }
+
+                userDetails(user, userDetailsDiv)
+
+
+                let button = document.createElement('button')
+                document.body.appendChild(button)
+                button.classList.add('postButton')
+                button.innerText = 'Show Posts'
+                button.addEventListener('click', showButton)
+
+
+            })
+
+
+        fetch(`https://jsonplaceholder.typicode.com/users/${userID}/posts`)
+            .then(res => res.json())
+            .then(posts => {
+                console.log('post', posts)
+
+                let container = document.createElement("div")
+                container.setAttribute('id', 'postContainer')
+                container.style.display = "none"
+                document.body.appendChild(container)
+
+                for (const post of posts) {
+                    let block = document.createElement("div")
+                    block.classList.add('postBlock')
+                    container.appendChild(block)
+
+                    let a = document.createElement('a')
+                    a.href = 'post-details.html?id=' + post.id
+                    a.innerHTML = post.title
+                    block.appendChild(a)
+                }
+
+            })
+    }
+
+    function showButton() {
+        let container = document.getElementById('postContainer')
+        if (container.style.display === "none") {
+            container.style.display = "flex"
+        } else {
+            container.style.display = "none"
+        }
+    }
+
+    load()
+
+</script>
+
+</body>
+</html>
